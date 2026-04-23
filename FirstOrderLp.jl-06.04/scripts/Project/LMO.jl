@@ -30,8 +30,8 @@ function lmo_firstorderlp(g, A, b; iter_limit = 1e+6, verbose = 0)
   )
 
   term = FirstOrderLp.construct_termination_criteria(
-    eps_optimal_absolute = 1e-9,
-    eps_optimal_relative = 1e-9,
+    eps_optimal_absolute = 1e-7,
+    eps_optimal_relative = 1e-7,
     iteration_limit = Int32(iter_limit),
   )
 

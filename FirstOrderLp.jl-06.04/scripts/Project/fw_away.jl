@@ -17,25 +17,33 @@ function grad_f(Q, c, x)
 end
 
 function away_step_frank_wolfe(Q, c, A, b; max_iter=100, tol=1e-6, verbose=true,
-                                stepsize=:exact)  # :exact | :diminishing | :armijo
+                                stepsize=:exact_bounded,time_limit=300.0,lmo_iter=3000)  # :exact | :diminishing | :armijo
     max_iter = isinf(max_iter) ? typemax(Int) : Int(max_iter)
     n = length(c)
 
-    # Active set: x = sum_i weights[i] * atoms[i]
-    atoms   = [zeros(n)]
+# Feed the LMO a random vector to find a valid, but non-optimal starting corner
+    random_dir = randn(n)
+    init_s  = lmo_firstorderlp(random_dir, A, b; iter_limit=lmo_iter, verbose=0)
+    
+    atoms   = [copy(init_s)]
     weights = [1.0]
-    x       = zeros(n)
+    x       = copy(init_s)
 
     hist_obj = Float64[]
     hist_gap = Float64[]
 
     iter_no = 0
+    start_time = time()
     for t in 1:max_iter
+        if time() - start_time > time_limit
+            println("Terminating: Time limit of $time_limit seconds exceeded.")
+            break
+        end
         iter_no += 1
         g = grad_f(Q, c, x)
 
         # FW atom and gap: s = argmin_{s in C} g.s,  fw_gap = g.(x - s) >= 0
-        s      = lmo_firstorderlp(g, A, b; iter_limit=3000, verbose=0)
+        s      = lmo_firstorderlp(g, A, b; iter_limit=lmo_iter, verbose=0)
         fw_gap = dot(g, x - s)
 
         # Away atom and gap: v = argmax_{v in S} g.v,  away_gap = g.(v - x) >= 0
@@ -47,12 +55,13 @@ function away_step_frank_wolfe(Q, c, A, b; max_iter=100, tol=1e-6, verbose=true,
         push!(hist_obj, f(Q, c, x))
         push!(hist_gap, fw_gap)
 
-        if verbose
+        if verbose && t % 100 == 0 
             step_type = fw_gap >= away_gap ? "FW  " : "Away"
             println("iter=$(lpad(t,4)), [$step_type], obj=$(round(hist_obj[end], digits=6)), fw_gap=$(round(fw_gap, digits=6))")
         end
 
         if fw_gap <= tol
+            println("Converged with FW gap = ", fw_gap, ", tolerance = ", tol)
             break
         end
 

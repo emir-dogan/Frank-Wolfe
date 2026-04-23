@@ -36,7 +36,13 @@ function random_qp(
   # Geometry of Polytope
   # Sparsity and Randomization
   A = sprand(m, n, rho)  #uniform distribution in [0,1] with probability 1-rho, 0 with probability rho
-
+  for j in 1:n
+      if nnz(A[:, j]) == 0
+          # Pick a random row and assign a random uniform value (0, 1]
+          random_row = rand(1:m)
+          A[random_row, j] = rand()
+      end
+  end
   # Constraint tightness
   row_norms = sum(A, dims = 2)
   u = 0.75 .+ 0.5 .* rand(m) # uniform distribution in [0.75, 1.25]

@@ -11,8 +11,8 @@ function grad_f(Q, c, x)
     return Q * x + c
 end
 
-function frank_wolfe(Q, c, A, b; max_iter=100, tol=1e-6, verbose=true,
-                     stepsize=:exact)  # :exact | :diminishing | :armijo 
+function frank_wolfe(Q, c, A, b;  max_iter=100, tol=1e-6, verbose=true,
+                     stepsize=:exact, time_limit=300, lmo_iter=3000)  # :exact | :diminishing | :armijo 
 
     # x=0 is feasible by construction
     x = zeros(size(A, 2))
@@ -20,10 +20,15 @@ function frank_wolfe(Q, c, A, b; max_iter=100, tol=1e-6, verbose=true,
     hist_obj = Float64[]
     hist_gap = Float64[]
     iter_no = 0
+    start_time = time()
     for t in 1:max_iter
+        if time() - start_time > time_limit
+            println("Terminating: Time limit of $time_limit seconds exceeded.")
+            break
+        end
         iter_no +=1
         g = grad_f(Q, c, x)
-        s = lmo_firstorderlp(g, A, b; iter_limit=3000, verbose=0)
+        s = lmo_firstorderlp(g, A, b; iter_limit=lmo_iter, verbose=0)
 
         d = s - x
         gap = -dot(g, d)   # Frank-Wolfe gap

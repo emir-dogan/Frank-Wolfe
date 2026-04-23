@@ -10,7 +10,7 @@ include("fw.jl")
 
 function run_experiments()
 
-  ns = [25, 50, 100]
+  ns = [25, 50, 100] 
   m_ratios = [0.5, 1, 2]
   rhos = [0.5, 0.95]
   kappas = [10.0, 100.0, 1000.0]
