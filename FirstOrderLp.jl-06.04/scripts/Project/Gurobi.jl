@@ -6,6 +6,7 @@ function solve_with_gurobi(Q, c, A, b,time_limit=300)
     set_optimizer_attribute(model, "FeasibilityTol", 1e-9)
     set_optimizer_attribute(model, "OptimalityTol", 1e-6)
     set_optimizer_attribute(model, "TimeLimit", time_limit)  
+    set_optimizer_attribute(model, "Threads", 1) 
 
     @variable(model, x[1:size(A,2)] >= 0)
     @objective(model, Min, 0.5 * dot(x, Q * x) + dot(c, x))

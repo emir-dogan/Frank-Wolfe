@@ -24,8 +24,8 @@ stepsize = :exact_bounded # :exact | :exact_bounded | :diminishing | :armijo #bo
 # Run a toy example
 # ------------------------------------------------------------
 
-n = 500   # number of variables
-m = 500   # number of constraints
+n = 200   # number of variables
+m = 200   # number of constraints
 
 Q, c, A, b = random_qp(n, m; seed=3131)
 println("Generated random QP instance with n = $n variables and m = $m constraints.")
@@ -41,19 +41,19 @@ println("Check Gurobi feasibility:")
 println("minimum x_i = ", minimum(x_gurobi))
 println("max(Ax - b) = ", maximum(A * x_gurobi - b))
 
-# start_time = time()
-# x_afw, obj_afw, gap_afw, iter_afw = away_step_frank_wolfe(Q, c, A, b;time_limit=time_limit, max_iter=max_iter, tol=tol ,verbose=verbose, stepsize=stepsize)
-# elapsed_time = time() - start_time
-# println("\nAway-Step FW completed in $(round(elapsed_time, digits=2)) seconds.")
-# println("\nAFW solution x* =")
-# println(x_afw)      
+start_time = time()
+x_afw, obj_afw, gap_afw, iter_afw = away_step_frank_wolfe(Q, c, A, b;time_limit=time_limit, max_iter=max_iter, tol=tol ,verbose=verbose, stepsize=stepsize)
+elapsed_time = time() - start_time
+println("\nAway-Step FW completed in $(round(elapsed_time, digits=2)) seconds.")
+println("\nAFW solution x* =")
+println(x_afw)      
 
-# println("\nAFW objective value = ", f(Q, c, x_afw))
-# println("AFW FW gap = ", gap_afw[end])
-# println("AFW iterations = ", iter_afw)
-# println("Check AFW feasibility:")       
-# println("minimum x_i = ", minimum(x_afw))
-# println("max(Ax - b) = ", maximum(A * x_afw - b))   
+println("\nAFW objective value = ", f(Q, c, x_afw))
+println("AFW FW gap = ", gap_afw[end])
+println("AFW iterations = ", iter_afw)
+println("Check AFW feasibility:")       
+println("minimum x_i = ", minimum(x_afw))
+println("max(Ax - b) = ", maximum(A * x_afw - b))   
 
 start_time = time()
 x_bpcg, obj_bpcg, gap_bpcg, iter_bpcg = blended_pairwise_frank_wolfe(Q, c, A, b;time_limit=time_limit, max_iter=max_iter, tol=tol ,verbose=verbose, stepsize=stepsize)
